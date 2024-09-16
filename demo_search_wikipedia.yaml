@@ -21,7 +21,7 @@ main:
       result: datetime
   - setFromCallResult:
       assign:
-      - searchTerm: ${datetime.body.dayOfTheWeek}
+      - searchTerm: ${datetime.body.dayOfWeek}
   - readWikipedia:
       args:
         query:
