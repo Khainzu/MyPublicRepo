@@ -1,1 +1,34 @@
+# This is a sample workflow to test or replace with your source code.
+#
+# This workflow returns a list of Wikipedia articles related to a search term.
+# The search term is retrieved from a time that returns the current day of the week
+# (in GMT), unless a search term is given as input (e.g. {"searchTerm": "Monday"}).
 
+main:
+  params:
+  - input
+  steps:
+  - checkSearchTermInInput:
+      switch:
+      - assign:
+        - searchTerm: ${input.searchTerm}
+        condition: ${"searchTerm" in input}
+        next: readWikipedia
+  - getCurrentTime:
+      args:
+        url: https://timeapi.io/api/Time/current/zone?timeZone=Europe/Paris
+      call: http.get
+      result: datetime
+  - setFromCallResult:
+      assign:
+      - searchTerm: ${datetime.body.dayOfTheWeek}
+  - readWikipedia:
+      args:
+        query:
+          action: opensearch
+          search: ${searchTerm}
+        url: https://en.wikipedia.org/w/api.php
+      call: http.get
+      result: wikiResult
+  - returnOutput:
+      return: ${wikiResult.body[1]}
